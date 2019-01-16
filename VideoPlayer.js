@@ -91,6 +91,12 @@ export default class VideoPlayer extends Component {
             onLoad: this._onLoad.bind( this ),
             onPause: this.props.onPause,
             onPlay: this.props.onPlay,
+            onVolumeSlideStart: this.props.onVolumeSlideStart,
+            onVolumeSlideEnd: this.props.onVolumeSlideEnd,
+            onSeekStart: this.props.onSeekStart,
+            onSeekEnd: this.props.onSeekEnd,
+            onShowControls: this.props.onShowControls,
+            onHideControls: this.props.onHideControls,
         };
 
         /**
@@ -406,10 +412,12 @@ export default class VideoPlayer extends Component {
         state.showControls = ! state.showControls;
 
         if ( state.showControls ) {
+            typeof this.events.onShowControls === 'function' && this.events.onShowControls();
             this.showControlAnimation();
             this.setControlTimeout();
         }
         else {
+            typeof this.events.onHideControls === 'function' && this.events.onHideControls();
             this.hideControlAnimation();
             this.clearControlTimeout();
         }
@@ -722,6 +730,8 @@ export default class VideoPlayer extends Component {
              * position in the onProgress listener.
              */
             onPanResponderGrant: ( evt, gestureState ) => {
+                typeof this.events.onSeekStart === 'function' && this.events.onSeekStart();
+
                 let state = this.state;
                 this.clearControlTimeout();
                 state.seeking = true;
@@ -742,6 +752,8 @@ export default class VideoPlayer extends Component {
              * onEnd callback
              */
             onPanResponderRelease: ( evt, gestureState ) => {
+                typeof this.events.onSeekEnd === 'function' && this.events.onSeekEnd();
+
                 const time = this.calculateTimeFromSeekerPosition();
                 let state = this.state;
                 if ( time >= state.duration && ! state.loading ) {
@@ -765,6 +777,8 @@ export default class VideoPlayer extends Component {
             onStartShouldSetPanResponder: ( evt, gestureState ) => true,
             onMoveShouldSetPanResponder: ( evt, gestureState ) => true,
             onPanResponderGrant: ( evt, gestureState ) => {
+                typeof this.events.onVolumeSlideStart === 'function' && this.events.onVolumeSlideStart();
+
                 this.clearControlTimeout();
             },
 
@@ -794,6 +808,8 @@ export default class VideoPlayer extends Component {
              * Update the offset...
              */
             onPanResponderRelease: ( evt, gestureState ) => {
+                typeof this.events.onVolumeSlideStart === 'function' && this.events.onVolumeSlideStart();
+
                 let state = this.state;
                 state.volumeOffset = state.volumePosition;
                 this.setControlTimeout();
